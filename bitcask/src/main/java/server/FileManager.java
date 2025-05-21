@@ -39,8 +39,8 @@ public class FileManager {
         try {
             fileOutputStream = new FileOutputStream(activeFile, true);
             fileOutputStream.write(ByteBuffer.allocate(Long.BYTES).putLong(entry.getTimeStamp()).array());
-            fileOutputStream.write(ByteBuffer.allocate(Integer.BYTES).putLong(entry.getKeySize()).array());
-            fileOutputStream.write(ByteBuffer.allocate(Integer.BYTES).putLong(entry.getValueSzie()).array());
+            fileOutputStream.write(ByteBuffer.allocate(Integer.BYTES).putInt(entry.getKeySize()).array());
+            fileOutputStream.write(ByteBuffer.allocate(Integer.BYTES).putInt(entry.getValueSzie()).array());
             fileOutputStream.write(ByteBuffer.allocate(Long.BYTES).putLong(entry.getKey()).array());
             byte[] data = entry.getValue();
             for (byte byte1 : data)
