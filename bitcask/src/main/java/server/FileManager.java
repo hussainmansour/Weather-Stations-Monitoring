@@ -31,6 +31,8 @@ public class FileManager {
     }
 
     public void createActiveFile() {
+        if (this.activeFileID != -1)
+            createHintFile(this.activeFileID);
         this.lastFileID++;
         this.activeFileID = this.lastFileID;
         this.activeFile = new File(path + this.activeFileID + ".data");
@@ -40,8 +42,6 @@ public class FileManager {
             System.out.println("Can't create new log file # " + this.activeFileID + " for bitcask");
             e.printStackTrace();
         }
-        if (this.activeFileID != 0)
-            createHintFile(this.activeFileID - 1);
     }
 
     private void createHintFile(long fileID) {
@@ -161,7 +161,7 @@ public class FileManager {
         return bytes;
     }
 
-    public ArrayList<Address> compact() {
+    public Map<Long, Address> compact() {
         Map<Long, Entry> summary = new HashMap<>();
         for (; fileToCompact < lastFileID; fileToCompact++) {
             ArrayList<HintEntry> hints = readHintFile(fileToCompact);
@@ -173,19 +173,20 @@ public class FileManager {
                     summary.put(key, dataEntry);
             }
         }
-        File compactionFile = new File(path + lastFileID + 1 + ".data");
         lastFileID++;
-        ArrayList<Address> newAddresses = new ArrayList<>();
+        File compactionFile = new File(path + lastFileID + ".data");
+        Map<Long,Address> newAddresses = new HashMap<>();
         for (Map.Entry<Long, Entry> entry : summary.entrySet()) {
             append(entry.getValue(), compactionFile);
-            newAddresses.add(convertEntryToAddress(entry.getValue(), compactionFile.length(), activeFileID));
+            newAddresses.put(entry.getKey(), convertEntryToAddress(entry.getValue(), compactionFile.length(), lastFileID));
         }
+        createHintFile(lastFileID);
         return newAddresses;
     }
 
     private Address convertEntryToAddress(Entry entry, long valuePose, long fileID) {
         Address address = new Address();
-        address.createAddress(fileID, entry.getValueSize(), (int)valuePose, entry.getTimeStamp());
+        address.createAddress(fileID, entry.getValueSize(), (int) valuePose, entry.getTimeStamp());
         return address;
     }
 
@@ -219,6 +220,5 @@ public class FileManager {
         hintEntry.setValuePose(valPose);
         return hintEntry;
     }
-
 
 }
