@@ -1,30 +1,15 @@
 package server;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-public class Entry {
+public abstract class Entry {
     private long timeStamp;
     private int keySize;
     private int valueSize;
     private long key;
-    private byte[] value;
 
-    public Entry createEntry(long key, ArrayList<Byte> value) {
-        this.timeStamp = System.currentTimeMillis();
-        this.key = key;
-        copyBytesList(value);
-        this.keySize = Long.BYTES;
-        this.valueSize = value.size();
-
-        return this;
-    }
-
-    private void copyBytesList(ArrayList<Byte> bytes){
-        this.value = new byte[bytes.size()];
-        for(int i = 0; i < bytes.size(); i++){
-            this.value[i] = bytes.get(i);
-        }
-    }
+    private int writeSize;
 
     public long getTimeStamp() {
         return this.timeStamp;
@@ -38,32 +23,55 @@ public class Entry {
         return this.key;
     }
 
-    public int getValueSzie() {
+    public int getValueSize() {
         return this.valueSize;
     }
 
-    public byte[] getValue() {
-        return this.value;
-    }
-
-    public void setTime(long timeStamp){
+    public void setTime(long timeStamp) {
         this.timeStamp = timeStamp;
     }
 
-    public void setKeySize(int keySize){
+    public void setKeySize(int keySize) {
         this.keySize = keySize;
     }
 
-    public void setValueSize(int valueSize){
+    public void setValueSize(int valueSize) {
         this.valueSize = valueSize;
     }
 
-    public void setKey(long key){
+    public void setKey(long key) {
         this.key = key;
     }
 
-    public void setValue(byte[] value){
-        this.value = value;
+    public void setWriteSize(int size){
+        this.writeSize = size;
     }
+
+    public int getWriteSize(){
+        return this.writeSize;
+    }
+
+    protected ArrayList<Byte> serialize() {
+        ArrayList<Byte> data = new ArrayList<>();
+        byte[] time = ByteBuffer.allocate(Long.BYTES).putLong(this.timeStamp).array();
+        byte[] ksize = ByteBuffer.allocate(Integer.BYTES).putInt(this.keySize).array();
+        byte[] valsize = ByteBuffer.allocate(Integer.BYTES).putInt(this.valueSize).array();
+        byte[] k = ByteBuffer.allocate(keySize).putLong(this.key).array();
+        for (byte b : time) {
+            data.add(b);
+        }
+        for (byte b : ksize) {
+            data.add(b);
+        }
+        for (byte b : valsize) {
+            data.add(b);
+        }
+        for (byte b : k) {
+            data.add(b);
+        }
+        return data;
+    }
+
+    public abstract byte[] serializeAll();
 
 }
