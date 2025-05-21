@@ -1,30 +1,33 @@
 package server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
         FileManager fileManager = new FileManager();
         fileManager.createDir();
         fileManager.createActiveFile();
-        DataEntry entry = new DataEntry();
-        ArrayList<Byte> a = new ArrayList<>();
-        a.add((byte) 1);
-        a.add((byte) 2);
-        a.add((byte) 3);
-        a.add((byte) 30);
-        a.add((byte) 5);
-        a.add((byte) 6);
-        entry.createEntry(0, a);
-        fileManager.log(entry);
-        System.out.println(fileManager.getActiveFileSize());
-        Address address = new Address();
-        address.createAddress(0, a.size(), (int) fileManager.getActiveFileSize(), 0);
-        fileManager.log(entry);
-        System.out.println(fileManager.getActiveFileSize());
-        DataEntry returned = fileManager.lookup(address);
-        System.out.println(returned.getKey());
-        System.out.println(returned.getValue()[0]);
-        System.out.println(returned.getValue()[3]);
+        Map<Long, Address> addresses = new HashMap<>();
+        for (int i = 0; i < 15; i++) {
+            DataEntry entry = new DataEntry();
+            ArrayList<Byte> a = new ArrayList<>();
+            a.add((byte) 1);
+            a.add((byte) i);
+            Address address = new Address();
+            address.createAddress(i % 3, a.size(), (int) fileManager.getActiveFileSize(), 0);
+            addresses.put((long) i % 3, address);
+            entry.createEntry(i % 3, a);
+            fileManager.log(entry);
+            if (i % 3 == 2) {
+                fileManager.createActiveFile();
+            }
+        }
+
+        for (Map.Entry<Long, Address> address : addresses.entrySet()) {
+            DataEntry returned = fileManager.lookup(address.getValue());
+            System.out.println(returned.getValue()[1]);
+        }
     }
 }

@@ -61,6 +61,7 @@ public class FileManager {
                 DataEntry newEntry = readDataEntry(raf);
                 Entry hintEntry = formHint(newEntry, pose);
                 hintEntries.add(hintEntry);
+                pose = raf.getFilePointer();
             }
         } catch (IOException e) {
             System.out.println("Can't read data from file");
