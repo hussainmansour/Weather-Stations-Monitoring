@@ -19,8 +19,6 @@ public class FileManager {
     private File activeFile;
     private String path = "bitcask/src/main/resources/logs/";
 
-    // TODO: Edit all prits in catch clauses
-
     public void createDir() {
         try {
             Files.createDirectories(Paths.get(path));
@@ -39,7 +37,7 @@ public class FileManager {
         try {
             this.activeFile.createNewFile();
         } catch (IOException e) {
-            System.out.println("Can't create new log file # " + this.activeFileID + " for bitcask");
+            System.out.println("Can't create new active file # " + this.activeFileID + " for bitcask");
             e.printStackTrace();
         }
     }
@@ -64,7 +62,7 @@ public class FileManager {
                 pose = raf.getFilePointer();
             }
         } catch (IOException e) {
-            System.out.println("Can't read data from file");
+            System.out.println("Can't read data file to create hints");
             e.printStackTrace();
         }
         return hintEntries;
@@ -155,7 +153,7 @@ public class FileManager {
         try {
             raf.read(bytes);
         } catch (IOException e) {
-            System.out.println("Can't retreive long");
+            System.out.println("Can't retreive value");
             e.printStackTrace();
         }
         return bytes;
@@ -175,10 +173,11 @@ public class FileManager {
         }
         lastFileID++;
         File compactionFile = new File(path + lastFileID + ".data");
-        Map<Long,Address> newAddresses = new HashMap<>();
+        Map<Long, Address> newAddresses = new HashMap<>();
         for (Map.Entry<Long, Entry> entry : summary.entrySet()) {
             append(entry.getValue(), compactionFile);
-            newAddresses.put(entry.getKey(), convertEntryToAddress(entry.getValue(), compactionFile.length(), lastFileID));
+            newAddresses.put(entry.getKey(),
+                    convertEntryToAddress(entry.getValue(), compactionFile.length(), lastFileID));
         }
         createHintFile(lastFileID);
         return newAddresses;
@@ -199,7 +198,7 @@ public class FileManager {
                 hintEntries.add(entry);
             }
         } catch (IOException e) {
-            System.out.println("Can't read data from file");
+            System.out.println("Can't read hint from file to compact");
             e.printStackTrace();
         }
         return hintEntries;
