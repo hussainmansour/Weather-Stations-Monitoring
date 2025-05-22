@@ -4,7 +4,7 @@ public class SystemKeeper {
 
     private final FileManager fileManager;
     private final int fileThreshold = 50_000_000;  // 50 MB
-    private final long compactionInterval = 300_000;  // 5 minutes
+    private final long compactionInterval = 60_000;  // 1 minute
     private final long CompactionCheckInterval = 1_000;  // 1 second
     private final long fileCheckInterval = 100;  // 0.1 second
 
@@ -21,7 +21,6 @@ public class SystemKeeper {
         while (running) {
             try {
                 if (fileManager.getActiveFileSize() >= fileThreshold) {
-                    System.out.println("Threshold exceeded, " + fileManager.getActiveFileSize());
                     fileManager.createActiveFile();
                 }
                 Thread.sleep(fileCheckInterval);
