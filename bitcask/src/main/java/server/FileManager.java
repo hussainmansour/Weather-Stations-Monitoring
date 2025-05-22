@@ -82,8 +82,10 @@ public class FileManager {
         return this.activeFileID;
     }
 
-    public void log(DataEntry entry) {
+    public Address log(DataEntry entry) {
+        Address address = convertEntryToAddress(entry, getActiveFileSize(), activeFileID);
         append(entry, activeFile);
+        return address;
     }
 
     private void append(Entry entry, File file) {
