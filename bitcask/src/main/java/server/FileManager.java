@@ -22,6 +22,7 @@ public class FileManager {
     public void createDir() {
         try {
             Files.createDirectories(Paths.get(path));
+            System.out.println("Bitcask directory created");
         } catch (IOException e) {
             System.err.println("Failed to create directories for bitcask: " + e.getMessage());
             return;
@@ -29,13 +30,14 @@ public class FileManager {
     }
 
     public void createActiveFile() {
-        if (this.activeFileID != -1)
-            createHintFile(this.activeFileID);
         this.lastFileID++;
         this.activeFileID = this.lastFileID;
         this.activeFile = new File(path + this.activeFileID + ".data");
         try {
             this.activeFile.createNewFile();
+            System.out.println("New active file created: " + this.activeFile);
+            if (this.activeFileID != 0)
+                createHintFile(this.activeFileID - 1);
         } catch (IOException e) {
             System.out.println("Can't create new active file # " + this.activeFileID + " for bitcask");
             e.printStackTrace();
@@ -49,21 +51,28 @@ public class FileManager {
         for (Entry entry : hintEntries) {
             append(entry, hintFile);
         }
+        System.out.println("Hint file created: " + hintFile);
     }
 
     private ArrayList<Entry> scanForHints(File dataFile) {
-        ArrayList<Entry> hintEntries = new ArrayList<>();
+        Map<Long, DataEntry> lastEntries = new HashMap<>();
+        Map<Long, Long> lastPoses = new HashMap<>();
         try (RandomAccessFile raf = new RandomAccessFile(dataFile, "r")) {
             long pose = raf.getFilePointer();
             while (pose < raf.length()) {
                 DataEntry newEntry = readDataEntry(raf);
-                Entry hintEntry = formHint(newEntry, pose);
-                hintEntries.add(hintEntry);
+                lastEntries.put(newEntry.getKey(), newEntry);
+                lastPoses.put(newEntry.getKey(), pose);
                 pose = raf.getFilePointer();
             }
         } catch (IOException e) {
             System.out.println("Can't read data file to create hints");
             e.printStackTrace();
+        }
+        ArrayList<Entry> hintEntries = new ArrayList<>();
+        for (Map.Entry<Long, DataEntry> me : lastEntries.entrySet()) {
+            Entry hintEntry = formHint(me.getValue(), lastPoses.get(me.getKey()));
+            hintEntries.add(hintEntry);
         }
         return hintEntries;
     }
@@ -162,6 +171,7 @@ public class FileManager {
     }
 
     public Map<Long, Address> compact() {
+        System.out.println("Start compaction from file: " + fileToCompact);
         Map<Long, Entry> summary = new HashMap<>();
         for (; fileToCompact < lastFileID; fileToCompact++) {
             ArrayList<HintEntry> hints = readHintFile(fileToCompact);
@@ -181,6 +191,7 @@ public class FileManager {
             newAddresses.put(entry.getKey(),
                     convertEntryToAddress(entry.getValue(), compactionFile.length(), lastFileID));
         }
+        System.out.println("Compaction is done in file " + compactionFile);
         createHintFile(lastFileID);
         return newAddresses;
     }
