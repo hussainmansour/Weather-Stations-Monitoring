@@ -128,9 +128,12 @@ public class FileManager {
     public Map<Long, Address> compact() {
         System.out.println("Start compaction from file: " + fileToCompact);
         Map<Long, Entry> summary = getFilesSummary();
-        Map<Long, Address> newAddresses = writeCompactFile(summary);
-        createHintFile(lastFileID);
-        System.out.println("Compaction is done in file " + lastFileID + ".data");
+        Map<Long, Address> newAddresses = null;
+        if (summary.size() != 0) {
+            newAddresses = writeCompactFile(summary);
+            createHintFile(lastFileID);
+            System.out.println("Compaction is done in file " + lastFileID + ".data");
+        }
         return newAddresses;
     }
 
@@ -138,6 +141,8 @@ public class FileManager {
         Map<Long, Entry> summary = new HashMap<>();
         long lastToCompact = lastFileID;
         for (; fileToCompact < lastToCompact; fileToCompact++) {
+            if (fileToCompact == activeFileID)
+                continue;
             Map<Long, Entry> fileSummary = readDataFile(fileToCompact);
             for (Map.Entry<Long, Entry> entry : fileSummary.entrySet()) {
                 long key = entry.getKey();
@@ -161,7 +166,7 @@ public class FileManager {
             System.out.println("Can't read file to compact");
             e.printStackTrace();
         }
-        if(dataFile.delete())
+        if (dataFile.delete())
             System.out.println("File: " + dataFile + " deleted after compaction");
         else
             System.out.println("File: " + dataFile + " can't be deleted after compaction");
