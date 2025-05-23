@@ -63,7 +63,7 @@
             <goals><goal>schema</goal></goals>
             <configuration>
               <sourceDirectory>schema</sourceDirectory>
-              <outputDirectory>src/main/java/</outputDirectory>
+              <outputDirectory>src/main/java/weather/station</outputDirectory>
             </configuration>
           </execution>
         </executions>

@@ -77,7 +77,7 @@
             <goals><goal>schema</goal></goals>
             <configuration>
               <sourceDirectory>schema</sourceDirectory>
-              <outputDirectory>src/main/java/</outputDirectory>
+              <outputDirectory>src/main/java/central/station</outputDirectory>
             </configuration>
           </execution>
         </executions>

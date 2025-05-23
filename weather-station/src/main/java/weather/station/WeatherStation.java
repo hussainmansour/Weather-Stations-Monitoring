@@ -2,6 +2,9 @@ package weather.station;
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -20,7 +23,7 @@ public class WeatherStation {
 
         String topic = "weather-data";
 
-        try (Producer<String, WeatherData> producer = new KafkaProducer<>(props)) {
+        try (Producer<String, GenericRecord> producer = new KafkaProducer<>(props)) {
             Random rand = new Random();
             long stationId = 1L;
             long seq = 0;
@@ -29,16 +32,27 @@ public class WeatherStation {
 
             System.out.println("Sending weather data to Kafka...");
 
+            Schema schema = WeatherData.getClassSchema();
+
             while (loops-- > 0) {
-                WeatherData weatherData = WeatherData.newBuilder()
-                        .setStationId(stationId)
-                        .setSNo(seq++)
-                        .setBatteryStatus(BatteryStatus.low)
-                        .setStatusTimestamp(System.currentTimeMillis())
-                        .setWeather(Weather.newBuilder().setHumidity(rand.nextInt()).setTemperature(rand.nextInt())
-                                .setWindSpeed(rand.nextInt()).build())
-                        .build();
-                ProducerRecord<String, WeatherData> record = new ProducerRecord<>(topic, String.valueOf(stationId), weatherData);
+//                WeatherData weatherData = WeatherData.newBuilder()
+//                        .setStationId(stationId)
+//                        .setSNo(seq++)
+//                        .setBatteryStatus(BatteryStatus.low)
+//                        .setStatusTimestamp(System.currentTimeMillis())
+//                        .setWeather(Weather.newBuilder().setHumidity(rand.nextInt()).setTemperature(rand.nextInt())
+//                                .setWindSpeed(rand.nextInt()).build())
+//                        .build();
+
+                GenericRecord genericRecord = new GenericData.Record(schema);
+                genericRecord.put("station_id", stationId);
+                genericRecord.put("s_no", seq++);
+                genericRecord.put("battery_status", BatteryStatus.low);
+                genericRecord.put("status_timestamp", System.currentTimeMillis());
+                genericRecord.put("weather", Weather.newBuilder().setHumidity(rand.nextInt()).setTemperature(rand.nextInt())
+                        .setWindSpeed(rand.nextInt()).build());
+
+                ProducerRecord<String, GenericRecord> record = new ProducerRecord<>(topic, String.valueOf(stationId), genericRecord);
                 producer.send(record, (metadata, exception) -> {
                     if (exception != null) {
                         System.err.println("Failed to produce: " + exception.getMessage());

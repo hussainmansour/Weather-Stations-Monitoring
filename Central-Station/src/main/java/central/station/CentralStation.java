@@ -29,7 +29,7 @@ public class CentralStation {
         Properties props = getProperties();
 
         try (KafkaConsumer<String, GenericRecord> consumer = new KafkaConsumer<>(props)) {
-            consumer.subscribe(Collections.singletonList(topic));
+            consumer.subscribe(Collections.singletonList(topic));;
 
             int recordCount = 0;
 
@@ -38,7 +38,7 @@ public class CentralStation {
             while (recordCount < 10) {
                 ConsumerRecords<String, GenericRecord> records = consumer.poll(Duration.ofSeconds(1));
                 for (ConsumerRecord<String, GenericRecord> record : records) {
-                    System.out.println("Consumed record: " + record);
+                    System.out.println("Consumed record: " + record.value());
                 }
                 recordCount += records.count();
             }
@@ -72,7 +72,7 @@ public class CentralStation {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class.getName());
         props.put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, System.getenv("SCHEMA_REGISTRY_URL"));
-        props.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true);
+        props.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, false);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         return props;
     }

@@ -1,7 +1,6 @@
 {
   "type": "record",
   "name": "WeatherData",
-  "namespace": "weather.station",
   "fields": [
     { "name": "station_id", "type": "long" },
     { "name": "s_no", "type": "long" },

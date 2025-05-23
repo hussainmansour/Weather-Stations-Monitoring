@@ -74,7 +74,7 @@ public class WeatherData extends org.apache.avro.specific.SpecificRecordBase imp
 
   private long station_id;
   private long s_no;
-  private central.station.BatteryStatus battery_status;
+  private BatteryStatus battery_status;
   private long status_timestamp;
   private central.station.Weather weather;
 
@@ -127,9 +127,9 @@ public class WeatherData extends org.apache.avro.specific.SpecificRecordBase imp
     switch (field$) {
     case 0: station_id = (java.lang.Long)value$; break;
     case 1: s_no = (java.lang.Long)value$; break;
-    case 2: battery_status = (central.station.BatteryStatus)value$; break;
+    case 2: battery_status = (BatteryStatus)value$; break;
     case 3: status_timestamp = (java.lang.Long)value$; break;
-    case 4: weather = (central.station.Weather)value$; break;
+    case 4: weather = (Weather)value$; break;
     default: throw new IndexOutOfBoundsException("Invalid index: " + field$);
     }
   }
