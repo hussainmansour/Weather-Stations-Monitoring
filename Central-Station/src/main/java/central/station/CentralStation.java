@@ -25,22 +25,19 @@ public class CentralStation {
     private static final int BATCH_SIZE = 10_000;
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Properties props = getProperties();
 
         try (KafkaConsumer<String, GenericRecord> consumer = new KafkaConsumer<>(props)) {
-            consumer.subscribe(Collections.singletonList(topic));;
-
-            int recordCount = 0;
+            consumer.subscribe(Collections.singletonList(topic));
 
             System.out.println("Starting to consume weather data from Kafka...");
 
-            while (recordCount < 10) {
+            while (true) {
                 ConsumerRecords<String, GenericRecord> records = consumer.poll(Duration.ofSeconds(1));
                 for (ConsumerRecord<String, GenericRecord> record : records) {
                     System.out.println("Consumed record: " + record.value());
                 }
-                recordCount += records.count();
             }
         }
 
