@@ -2,9 +2,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.example</groupId>
-  <artifactId>Central-Station</artifactId>
+  <artifactId>weather-station</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>Archetype - Central-Station</name>
+  <name>Archetype - weather-station</name>
   <url>http://maven.apache.org</url>
 
   <repositories>
@@ -29,20 +29,6 @@
       <version>7.9.0</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.apache.parquet/parquet-avro -->
-    <dependency>
-      <groupId>org.apache.parquet</groupId>
-      <artifactId>parquet-avro</artifactId>
-      <version>1.15.2</version>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common -->
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-common</artifactId>
-      <version>3.4.1</version>
-    </dependency>
-
     <!-- https://mvnrepository.com/artifact/org.apache.avro/avro -->
     <dependency>
       <groupId>org.apache.avro</groupId>
@@ -50,18 +36,18 @@
       <version>1.12.0</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>2.24.3</version>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro-maven-plugin</artifactId>
+      <version>1.12.0</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/dnsjava/dnsjava -->
+    <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
     <dependency>
-      <groupId>dnsjava</groupId>
-      <artifactId>dnsjava</artifactId>
-      <version>3.6.3</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>2.0.17</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -100,7 +86,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>central.station.CentralStation</mainClass> <!-- or CentralStation -->
+              <mainClass>weather.station.WeatherStation</mainClass> <!-- or CentralStation -->
             </manifest>
           </archive>
         </configuration>
@@ -118,29 +104,11 @@
             </goals>
             <configuration>
               <createDependencyReducedPom>false</createDependencyReducedPom>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>central.station.CentralStation</mainClass>
-                  <manifestEntries>
-                    <Multi-Release>true</Multi-Release>
-                  </manifestEntries>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-              </transformers>
             </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
+
 </project>
