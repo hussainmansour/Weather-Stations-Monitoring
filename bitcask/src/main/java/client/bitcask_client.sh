@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVER_URL="http://localhost:8080/bitcask"
+SERVER_URL="http://localhost:8085/bitcask"
 TIMESTAMP=$(date +%s)
 
 function view_all() {
