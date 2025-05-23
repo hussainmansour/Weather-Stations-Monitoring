@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 public class BitcaskServer {
     public static void main(String[] args) {
+        port(8085); 
         Bitcask bitcask = Bitcask.getBitcaskInstance();
 
         get("/bitcask/view-all", (req, res) -> {
@@ -22,6 +23,23 @@ public class BitcaskServer {
             }
             res.type("application/json");
             return new Gson().toJson(entry);
+        });
+
+        Gson gson = new Gson();
+        post("/bitcask/add", (req, res) -> {
+            try {
+                DataEntry dataEntry = gson.fromJson(req.body(), DataEntry.class);
+                if (dataEntry == null) {
+                    res.status(400);
+                    return "Invalid DataEntry format";
+                }
+                bitcask.add(dataEntry);
+                res.status(200);
+                return "DataEntry added successfully";
+            } catch (Exception e) {
+                res.status(500);
+                return "Error: " + e.getMessage();
+            }
         });
     }
 }
