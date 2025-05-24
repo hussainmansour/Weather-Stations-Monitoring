@@ -1,32 +1,32 @@
 package central.station;
 
+// Kafka imports
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.parquet.avro.AvroParquetWriter;
-import org.apache.parquet.avro.AvroWriteSupport;
-import org.apache.parquet.hadoop.ParquetFileWriter;
-import org.apache.parquet.hadoop.ParquetWriter;
-import org.apache.hadoop.fs.Path;
-import org.apache.parquet.hadoop.util.HadoopOutputFile;
-import org.apache.parquet.io.OutputFile;
 
+// Avro imports
+import org.apache.avro.generic.GenericRecord;
+
+// Java imports
 import java.io.IOException;
 import java.time.Duration;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Properties;
 
 public class CentralStation {
     private static final String topic = "weather-data";
-    private static final int BATCH_SIZE = 10_000;
 
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Properties props = getProperties();
+        List<GenericRecord> buffer = new ArrayList<>();
+        WeatherDataParquetWriter parquetWriter = new WeatherDataParquetWriter(10_000, "data");
 
         try (KafkaConsumer<String, GenericRecord> consumer = new KafkaConsumer<>(props)) {
             consumer.subscribe(Collections.singletonList(topic));
@@ -35,30 +35,14 @@ public class CentralStation {
 
             while (true) {
                 ConsumerRecords<String, GenericRecord> records = consumer.poll(Duration.ofSeconds(1));
+                
                 for (ConsumerRecord<String, GenericRecord> record : records) {
-                    System.out.println("Consumed record: " + record.value());
+                    buffer.add(record.value());
                 }
+
+                parquetWriter.addRecords(buffer);
+
             }
-        }
-
-    }
-
-    private static void writeToParquet(List<WeatherData> buffer) throws IOException {
-        String filePath = "/data/weather_" + System.currentTimeMillis() + ".parquet";
-        Path path = new Path(filePath);
-        OutputFile outputFile = HadoopOutputFile.fromPath(path, new org.apache.hadoop.conf.Configuration());
-        try (ParquetWriter<WeatherData> writer = AvroParquetWriter.<WeatherData>builder(outputFile)
-                .withSchema(WeatherData.getClassSchema())
-                .withWriteMode(ParquetFileWriter.Mode.OVERWRITE)
-                .config(AvroWriteSupport.WRITE_OLD_LIST_STRUCTURE, "false")
-                .build()) {
-
-            for (WeatherData data : buffer) {
-                writer.write(data);
-            }
-
-        } catch (IOException e) {
-            System.err.println("Error writing to Parquet file: " + filePath);
         }
     }
 

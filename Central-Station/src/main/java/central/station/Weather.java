@@ -223,7 +223,7 @@ public class Weather extends org.apache.avro.specific.SpecificRecordBase impleme
 
     /** Creates a new Builder */
     private Builder() {
-      super(SCHEMA$, MODEL$);
+      super(SCHEMA$);
     }
 
     /**
@@ -251,7 +251,7 @@ public class Weather extends org.apache.avro.specific.SpecificRecordBase impleme
      * @param other The existing instance to copy.
      */
     private Builder(Weather other) {
-      super(SCHEMA$, MODEL$);
+      super(SCHEMA$);
       if (isValidValue(fields()[0], other.humidity)) {
         this.humidity = data().deepCopy(fields()[0].schema(), other.humidity);
         fieldSetFlags()[0] = true;
