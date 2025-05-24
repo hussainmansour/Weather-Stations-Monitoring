@@ -26,7 +26,7 @@ public class CentralStation {
     public static void main(String[] args) throws IOException {
         Properties props = getProperties();
         List<GenericRecord> buffer = new ArrayList<>();
-        WeatherDataParquetWriter parquetWriter = new WeatherDataParquetWriter(100, "data");
+        WeatherDataParquetWriter parquetWriter = new WeatherDataParquetWriter(10_000, "data");
 
         try (KafkaConsumer<String, GenericRecord> consumer = new KafkaConsumer<>(props)) {
             consumer.subscribe(Collections.singletonList(topic));

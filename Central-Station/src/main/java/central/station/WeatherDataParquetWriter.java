@@ -29,26 +29,35 @@ public class WeatherDataParquetWriter {
         buffer = new ArrayList<>();
     }
 
-    public void addRecords(List<GenericRecord> records) throws IOException {
+    public void addRecords(List<GenericRecord> records) {
         buffer.addAll(records);
         if (buffer.size() >= batchSize) {
             flushBuffer();
         }
     }
 
-    private void flushBuffer() throws IOException {
-        for (GenericRecord record : buffer) {
-            writeParquetFile(record);
-        }
-        System.out.println("Successfully wrote " + buffer.size() + " records to Parquet files");
+    private void flushBuffer() {
+        List<GenericRecord> toBeWritten = new ArrayList<>(buffer);
+        buffer.clear();
+
+        System.out.println("Flushing buffer with " + toBeWritten.size() + " records to Parquet files");
+
+        new Thread(() -> {
+            try {
+                for (GenericRecord record : toBeWritten) {
+                    writeParquetFile(record);
+                }
+                System.out.println("Successfully wrote " + toBeWritten.size() + " records to Parquet files");
+            } catch (IOException e) {
+                System.err.println("Error writing Parquet files: " + e.getMessage());
+            }
+        }).start();
     }
 
     private void writeParquetFile(GenericRecord record) throws IOException {
-        new java.io.File(basePath).mkdirs();
-
         String outputPath = String.format("%s/timestamp_%d/id_%d.parquet",
                 basePath,
-                (long) record.get("status_timestamp"),
+                ((long) record.get("status_timestamp") / 1000),
                 ((Number) record.get("station_id")).intValue());
 
         Path path = new Path(outputPath);
