@@ -45,6 +45,8 @@ services:
     environment:
       BOOTSTRAP_SERVERS: kafka:9093
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 1
+
 
   central-station:
     build: ./Central-Station
