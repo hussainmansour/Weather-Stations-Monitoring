@@ -37,7 +37,7 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9093
 
-  weather-station:
+  weather-station-1:
     build: ./weather-station
     depends_on:
       - kafka
@@ -46,6 +46,97 @@ services:
       BOOTSTRAP_SERVERS: kafka:9093
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       STATION_ID: 1
+
+  weather-station-2:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 2
+
+  weather-station-3:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 3
+
+  weather-station-4:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 4
+
+  weather-station-5:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 5
+
+  weather-station-6:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 6
+
+  weather-station-7:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 7
+
+
+  weather-station-8:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 8
+
+  weather-station-9:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 9
+
+  weather-station-10:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 10
 
 
   central-station:
