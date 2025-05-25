@@ -10,6 +10,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
+import bitcask.client.BitcaskClient;
+
 // Avro imports
 import org.apache.avro.generic.GenericRecord;
 // Java imports
@@ -31,7 +33,7 @@ public class CentralStation {
         Properties props = getProperties();
         List<GenericRecord> buffer = new ArrayList<>();
         WeatherDataParquetWriter parquetWriter = new WeatherDataParquetWriter(50, "data");
-
+        BitcaskClient bitcaskClient = new BitcaskClient("http://bitcask:8085");
 
         try (KafkaConsumer<String, GenericRecord> consumer = new KafkaConsumer<>(props)) {
             consumer.subscribe(Collections.singletonList(topic));
@@ -46,6 +48,7 @@ public class CentralStation {
                 }
 
                 parquetWriter.addRecords(buffer);
+                bitcaskClient.sendToBitcask(buffer);
                 buffer.clear();
 
             }

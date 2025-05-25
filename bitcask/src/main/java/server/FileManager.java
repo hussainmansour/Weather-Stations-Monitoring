@@ -17,7 +17,7 @@ public class FileManager {
     private long activeFileID = -1;
     private long fileToCompact = 0;
     private File activeFile;
-    private String path = "bitcask/src/main/resources/logs/";
+    private String path = "logs/";
 
     public void createDir() {
         try {

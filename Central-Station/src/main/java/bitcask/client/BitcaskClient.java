@@ -18,7 +18,7 @@ import java.util.List;
 public class BitcaskClient {
     private final String serverUrl;
 
-    public BitcaskClient (String serverUrl) {
+    public BitcaskClient(String serverUrl) {
         this.serverUrl = serverUrl;
     }
 
@@ -30,7 +30,13 @@ public class BitcaskClient {
 
     private void add(GenericRecord record) {
         DataEntry entry = new DataEntry();
-        byte[] bytes = genericRecordToBytes(record, record.getSchema());
+        byte[] bytes = null;
+        try {
+            bytes = serializeRecord(record);
+        } catch (IOException e) {
+            System.out.println("Can't serialize data to send to bitcask");
+            e.printStackTrace();
+        }
         ArrayList<Byte> aa = new ArrayList<>();
         for (byte b : bytes)
             aa.add(b);
@@ -38,18 +44,12 @@ public class BitcaskClient {
         sendDataEntry(entry);
     }
 
-     private byte[] genericRecordToBytes(GenericRecord record, Schema schema) {
+    public static byte[] serializeRecord(GenericRecord record) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        DatumWriter<GenericRecord> writer = new GenericDatumWriter<>(schema);
-        BinaryEncoder encoder = (org.apache.commons.codec.BinaryEncoder) EncoderFactory.get().binaryEncoder(out, null);
-
-        try {
-            writer.write(record, (Encoder) encoder);
-            ((Flushable) encoder).flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        DatumWriter<GenericRecord> writer = new GenericDatumWriter<>(record.getSchema());
+        org.apache.avro.io.BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
+        writer.write(record, encoder);
+        encoder.flush();
         return out.toByteArray();
     }
 
