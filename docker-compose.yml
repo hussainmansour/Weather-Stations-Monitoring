@@ -107,7 +107,6 @@ services:
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       STATION_ID: 7
 
-
   weather-station-8:
     build: ./weather-station
     depends_on:
@@ -138,22 +137,29 @@ services:
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       STATION_ID: 10
 
-
   central-station:
     build: ./Central-Station
     depends_on:
       - kafka
       - schema-registry
+      - bitcask
     environment:
       BOOTSTRAP_SERVERS: kafka:9093
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      BITCASK_SERVER: http://bitcask:8085
     volumes:
-      - /media/abdelrahman-aladdin/NoName/CSED/semester-8/DDIA/Weather-Stations-Monitoring/data:/app/data
+      - /home/ahmed-hehsam/level4term2/dataIntensive/project/Weather-Stations-Monitoring/data:/app/data
+
+  bitcask:
+    build: ./bitcask
+    ports:
+      - "8085:8085"
+    volumes:
+      - /home/ahmed-hehsam/level4term2/dataIntensive/project/Weather-Stations-Monitoring/logs:/app/logs
 
 networks:
   weather-net:
-    driver:
-      bridge
+    driver: bridge
 
 volumes:
   kafka-data:
