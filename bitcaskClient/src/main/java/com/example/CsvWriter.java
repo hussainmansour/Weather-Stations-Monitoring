@@ -28,7 +28,7 @@ public class CsvWriter {
     private static void writeKeyValueToCsv(ArrayList<Long> key, ArrayList<String> value, int threadId) {
         String filename = Instant.now().toEpochMilli() + ".csv";
         if(threadId != -1)
-            filename = Instant.now().toEpochMilli()+ "thread-" + threadId + ".csv";
+            filename = Instant.now().toEpochMilli()+ "_thread_" + threadId + ".csv";
 
         try (FileWriter writer = new FileWriter(filename)) {
             for (int i = 0; i < key.size(); i++)
