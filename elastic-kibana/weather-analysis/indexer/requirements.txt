@@ -1,0 +1,7 @@
+pandas
+pyarrow
+elasticsearch==8.1.3
+tqdm
+watchdog
+pyspark
+requests

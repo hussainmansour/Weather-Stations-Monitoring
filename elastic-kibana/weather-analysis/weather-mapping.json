@@ -1,0 +1,14 @@
+{
+  "mappings": {
+    "properties": {
+      "station_id":           { "type": "long"    },
+      "s_no":                 { "type": "long"    },
+      "battery_status":       { "type": "keyword" },
+      "status_timestamp":     { "type": "date",   "format": "epoch_second" },
+      "weather_humidity":     { "type": "integer" },
+      "weather_temperature":  { "type": "integer" },
+      "weather_wind_speed":   { "type": "integer" },
+      "dropped":              { "type": "boolean" }
+    }
+  }
+}
