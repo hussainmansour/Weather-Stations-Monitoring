@@ -1,0 +1,159 @@
+services:
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
+    hostname: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      # Configure listeners for both docker and host communication
+      KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: HOST://host.docker.internal:9092,DOCKER://kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+
+      # Settings required for KRaft mode
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
+
+      # Listener to use for broker-to-broker communication
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+
+      # Required for a single node cluster
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: BhncuKaMSEOjlwR4h0rcHA
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.0
+    container_name: schema-registry
+    hostname: schema-registry
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9093
+
+  weather-station-1:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 1
+
+  weather-station-2:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 2
+
+  weather-station-3:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 3
+
+  weather-station-4:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 4
+
+  weather-station-5:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 5
+
+  weather-station-6:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 6
+
+  weather-station-7:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 7
+
+
+  weather-station-8:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 8
+
+  weather-station-9:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 9
+
+  weather-station-10:
+    build: ./weather-station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      STATION_ID: 10
+
+
+  central-station:
+    build: ./Central-Station
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9093
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+    volumes:
+      - /media/abdelrahman-aladdin/NoName/CSED/semester-8/DDIA/Weather-Stations-Monitoring/data:/app/data
+
+networks:
+  weather-net:
+    driver:
+      bridge
+
+volumes:
+  kafka-data:
