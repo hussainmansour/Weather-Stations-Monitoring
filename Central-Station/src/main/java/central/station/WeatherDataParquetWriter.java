@@ -55,10 +55,10 @@ public class WeatherDataParquetWriter {
     }
 
     private void writeParquetFile(GenericRecord record) throws IOException {
-        String outputPath = String.format("%s/timestamp_%d/id_%d.parquet",
+        String outputPath = String.format("%s/weather_station_%d/timestamp_%d.parquet",
                 basePath,
-                ((long) record.get("status_timestamp") / 1000),
-                ((Number) record.get("station_id")).intValue());
+                ((Number) record.get("station_id")).intValue(),
+                ((long) record.get("status_timestamp") / 1000));
 
         Path path = new Path(outputPath);
         OutputFile outputFile = HadoopOutputFile.fromPath(path, new Configuration());

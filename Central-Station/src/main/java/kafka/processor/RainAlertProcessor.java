@@ -36,8 +36,7 @@ public class RainAlertProcessor {
         KStream<String, GenericRecord> stream = builder.stream("weather-data",
                 Consumed.with(Serdes.String(), valueSerde));
 
-        stream.peek((key, value) -> System.out.println("Received record: key=" + key + ", value=" + value))
-              .filter((key, value) -> {
+        stream.filter((key, value) -> {
                   GenericRecord weather = (GenericRecord) value.get("weather");
                   int humidityValue = (Integer) weather.get("humidity");
                   return humidityValue > 70;
