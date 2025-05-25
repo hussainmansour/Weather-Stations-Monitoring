@@ -22,6 +22,13 @@
       <version>4.0.0</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams -->
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-streams</artifactId>
+      <version>4.0.0</version>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -34,6 +41,13 @@
       <groupId>io.confluent</groupId>
       <artifactId>kafka-avro-serializer</artifactId>
       <version>7.9.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/io.confluent/kafka-streams-avro-serde -->
+    <dependency>
+      <groupId>io.confluent</groupId>
+      <artifactId>kafka-streams-avro-serde</artifactId>
+      <version>7.9.1</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.apache.parquet/parquet-avro -->

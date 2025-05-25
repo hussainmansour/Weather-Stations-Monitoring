@@ -1,9 +1,9 @@
 package central.station;
 
 // Kafka imports
-import Bitcask.Client.BitcaskClient;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
+import kafka.processor.RainAlertProcessor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -18,17 +18,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CentralStation {
     private static final String topic = "weather-data";
 
     public static void main(String[] args) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(RainAlertProcessor::start);
+
         Properties props = getProperties();
         List<GenericRecord> buffer = new ArrayList<>();
-        WeatherDataParquetWriter parquetWriter = new WeatherDataParquetWriter(10_000, "data");
+        WeatherDataParquetWriter parquetWriter = new WeatherDataParquetWriter(50, "data");
 
-        BitcaskClient bitcaskClient = new BitcaskClient(System.getenv("BITCASK_SERVER_URL"));
-        List<GenericRecord> bitcaskBuffer = new ArrayList<>();
 
         try (KafkaConsumer<String, GenericRecord> consumer = new KafkaConsumer<>(props)) {
             consumer.subscribe(Collections.singletonList(topic));
@@ -40,13 +43,10 @@ public class CentralStation {
 
                 for (ConsumerRecord<String, GenericRecord> record : records) {
                     buffer.add(record.value());
-                    bitcaskBuffer.add(record.value());
                 }
 
-                bitcaskClient.sendToBitcask(bitcaskBuffer);
-                bitcaskBuffer.clear();
-
                 parquetWriter.addRecords(buffer);
+                buffer.clear();
 
             }
         }
