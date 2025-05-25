@@ -1,14 +1,10 @@
 package bitcask.client;
 
 import com.google.gson.Gson;
-import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
-import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
-import org.apache.commons.codec.BinaryEncoder;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
