@@ -20,7 +20,9 @@ public class WeatherStation {
 
     public static void main(String[] args) {
         Properties props = getProps();
-        long stationId = Long.parseLong(System.getenv("STATION_ID"));
+        String podName = System.getenv("STATION_ID");
+        long stationId = Long.parseLong(podName.substring(podName.lastIndexOf("-") + 1));
+
         long seq = 0;
         Random rand = new Random();
         Schema schema = WeatherData.getClassSchema();
