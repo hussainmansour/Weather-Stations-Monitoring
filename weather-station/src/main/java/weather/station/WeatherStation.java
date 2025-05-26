@@ -90,8 +90,8 @@ public class WeatherStation {
     private static Weather getWeather(Random rand) {
         return Weather.newBuilder()
                 .setHumidity(rand.nextInt(100))
-                .setTemperature(rand.nextInt(50))
-                .setWindSpeed(rand.nextInt(100))
+                .setTemperature(rand.nextInt(500))
+                .setWindSpeed(rand.nextInt(1000))
                 .build();
     }
 
