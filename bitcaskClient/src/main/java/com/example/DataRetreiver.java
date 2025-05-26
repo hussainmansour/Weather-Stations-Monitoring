@@ -42,7 +42,7 @@ public class DataRetreiver {
     }
 
     private String deserializeRecord(byte[] data) throws IOException {
-        org.apache.avro.Schema schema = new Schema.Parser().parse(new File("/home/ahmed-hehsam/level4term2/dataIntensive/project/Weather-Stations-Monitoring/Central-Station/schema/messageSchema.avsc"));
+        org.apache.avro.Schema schema = new Schema.Parser().parse(new File("/Users/csed/Desktop/data-intensive/Weather-Stations-Monitoring/Central-Station/schema/messageSchema.avsc"));
         DatumReader<GenericRecord> reader = new GenericDatumReader<GenericRecord>(schema);
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(in, null);

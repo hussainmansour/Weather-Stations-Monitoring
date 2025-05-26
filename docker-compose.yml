@@ -148,14 +148,14 @@ services:
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       BITCASK_SERVER: http://bitcask:8085
     volumes:
-      - /home/ahmed-hehsam/level4term2/dataIntensive/project/Weather-Stations-Monitoring/data:/app/data
+      - /Users/csed/Desktop/data-intensive/Weather-Stations-Monitoring/data:/app/data
 
   bitcask:
     build: ./bitcask
     ports:
       - "8085:8085"
     volumes:
-      - /home/ahmed-hehsam/level4term2/dataIntensive/project/Weather-Stations-Monitoring/logs:/app/logs
+      - /Users/csed/Desktop/data-intensive/Weather-Stations-Monitoring/logs:/app/logs
 
 networks:
   weather-net:
