@@ -10,13 +10,12 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-import java.util.Properties;
-import java.util.Random;
+import java.util.*;
 
 public class WeatherStation {
-    private static final double lowBatteryPercentage = 0.3;
-    private static final double mediumBatteryPercentage = 0.4;
     private static final String topic = "weather-data";
+    private static final List<Integer> statusPool = new ArrayList<>(100);
+    private static final Random random = new Random();
 
     public static void main(String[] args) {
         Properties props = getProps();
@@ -24,33 +23,42 @@ public class WeatherStation {
         long stationId = Long.parseLong(podName.substring(podName.lastIndexOf("-") + 1));
 
         long seq = 0;
-        Random rand = new Random();
+        int idx = 0;
         Schema schema = WeatherData.getClassSchema();
+        fillStatusPool();
 
         System.out.println("Sending weather data to Kafka...");
 
         try (Producer<String, GenericRecord> producer = new KafkaProducer<>(props)) {
             while (true) {
-                GenericRecord status = generateStatusRecord(stationId, seq++, schema);
-                ProducerRecord<String, GenericRecord> record = new ProducerRecord<>(topic, String.valueOf(stationId), status);
-                sendStatus(producer, record, rand);
-                Thread.sleep(1000);
+                if (idx >= statusPool.size()) {
+                    Collections.shuffle(statusPool);
+                    idx = 0;
+                }
+
+                int messageStatus = statusPool.get(idx++);
+
+                if (messageStatus == 0) {
+                    System.out.println("Dropped message for station " + stationId + " at sequence " + seq);
+                } else {
+                    GenericRecord status = generateStatusRecord(stationId, seq++, schema, messageStatus);
+                    ProducerRecord<String, GenericRecord> record = new ProducerRecord<>(topic, String.valueOf(stationId), status);
+                    sendStatus(producer, record);
+                    Thread.sleep(1000);
+                }
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void sendStatus(Producer<String, GenericRecord> producer, ProducerRecord<String, GenericRecord> record,
-                                   Random rand) {
-        if (rand.nextInt(10) != 5) {
-            producer.send(record, (metadata, exception) -> {
-                if (exception != null) {
-                    System.err.println("Failed to produce: " + exception.getMessage());
-                }
-            });
-            System.out.println("Sent record: " + record);
-        }
+    private static void sendStatus(Producer<String, GenericRecord> producer, ProducerRecord<String, GenericRecord> record) {
+        producer.send(record, (metadata, exception) -> {
+            if (exception != null) {
+                System.err.println("Failed to produce: " + exception.getMessage());
+            }
+        });
+        System.out.println("Sent record: " + record);
     }
 
     private static Properties getProps() {
@@ -62,24 +70,21 @@ public class WeatherStation {
         return props;
     }
 
-    private static GenericRecord generateStatusRecord(long stationId, long seq, Schema schema) {
+    private static GenericRecord generateStatusRecord(long stationId, long seq, Schema schema, int batteryStatus) {
         Random rand = new Random();
         GenericRecord genericRecord = new GenericData.Record(schema);
         genericRecord.put("station_id", stationId);
         genericRecord.put("s_no", seq);
-        genericRecord.put("battery_status", getBatteryStatus(rand));
+        genericRecord.put("battery_status", getBatteryStatus(batteryStatus));
         genericRecord.put("status_timestamp", System.currentTimeMillis());
         genericRecord.put("weather", getWeather(rand));
         return genericRecord;
     }
 
-    private static BatteryStatus getBatteryStatus(Random rand) {
-        double randomValue = rand.nextDouble();
-        if (randomValue <= lowBatteryPercentage)
-            return BatteryStatus.low;
-        if (randomValue <= mediumBatteryPercentage)
-            return BatteryStatus.medium;
-        return BatteryStatus.high;
+    private static BatteryStatus getBatteryStatus(int status) {
+        return (status == 1) ? BatteryStatus.low :
+                (status == 2) ? BatteryStatus.medium :
+                BatteryStatus.high;
     }
 
     private static Weather getWeather(Random rand) {
@@ -88,5 +93,13 @@ public class WeatherStation {
                 .setTemperature(rand.nextInt(50))
                 .setWindSpeed(rand.nextInt(100))
                 .build();
+    }
+
+    private static void fillStatusPool() {
+        for (int i = 0; i < 10; i++) statusPool.add(0); // 10% dropped messages
+        for (int i = 0; i < 27; i++) statusPool.add(1); // 30% low battery
+        for (int i = 0; i < 27; i++) statusPool.add(3); // 30% high battery
+        for (int i = 0; i < 36; i++) statusPool.add(2); // 40% medium battery
+        Collections.shuffle(statusPool, random);
     }
 }
