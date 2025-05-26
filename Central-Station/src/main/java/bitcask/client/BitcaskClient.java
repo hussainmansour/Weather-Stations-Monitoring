@@ -8,6 +8,7 @@ import org.apache.avro.io.EncoderFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +32,10 @@ public class BitcaskClient {
             bytes = serializeRecord(record);
         } catch (IOException e) {
             System.out.println("Can't serialize data to send to bitcask");
-            e.printStackTrace();
+            System.err.println("Error serializing record: " + e.getMessage());
         }
         ArrayList<Byte> aa = new ArrayList<>();
+        assert bytes != null;
         for (byte b : bytes)
             aa.add(b);
         entry.createEntry(Integer.parseInt(record.get("station_id").toString()), aa);
@@ -61,20 +63,20 @@ public class BitcaskClient {
             String jsonInputString = gson.toJson(dataEntry);
 
             try (OutputStream os = con.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes("utf-8");
+                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
 
             int code = con.getResponseCode();
             System.out.println("Response Code: " + code);
 
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"))) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
                 String responseLine;
                 StringBuilder response = new StringBuilder();
                 while ((responseLine = br.readLine()) != null) {
                     response.append(responseLine.trim());
                 }
-                System.out.println("Server response: " + response.toString());
+                System.out.println("Server response: " + response);
             }
         } catch (Exception e) {
             System.err.println("Error sending DataEntry: " + e.getMessage());
