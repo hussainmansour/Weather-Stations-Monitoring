@@ -24,7 +24,7 @@ logger = logging.getLogger("ParquetIndexer")
 # ─── Env config ────────────────────────────────────────────────────────────────
 ES_HOST     = os.environ["ES_HOST"]
 ES_INDEX    = os.environ["ES_INDEX"]
-ES_URL = f"{ES_HOST}/{ES_INDEX}/_bulk"
+ES_URL      = f"{ES_HOST}/{ES_INDEX}/_bulk"
 PARQUET_DIR = "/data/parquet"
 PROCESSED   = os.path.join(PARQUET_DIR, "processed")
 FAILED      = os.path.join(PARQUET_DIR, "failed")
@@ -86,7 +86,7 @@ def index_file(path):
     station_id = os.path.basename(os.path.dirname(path))
     new_fname = f"{station_id}_{fname}"
     dest_processed = os.path.join(PROCESSED, new_fname)
-    dest_failed = os.path.join(FAILED, new_fname)
+    dest_failed    = os.path.join(FAILED,    new_fname)
 
     # Skip if already copied
     if os.path.exists(dest_processed) or os.path.exists(dest_failed):
@@ -126,27 +126,57 @@ def index_file(path):
 
 # ─── Watchdog handler ─────────────────────────────────────────────────────────
 class ParquetHandler(FileSystemEventHandler):
-    def on_created(self, event):
-        if event.is_directory or os.path.isdir(event.src_path) or should_skip(event.src_path):
-            return
-        logger.info(f"New file detected: {event.src_path}")
-        if event.src_path.endswith(".parquet"):
-            index_file(event.src_path)
+    def __init__(self, observer):
+        self.observer = observer
 
-# ─── Main ─────────────────────────────────────────────────────────────────────
+    def process(self, path, is_dir=False):
+        if is_dir:
+            # start watching any new station dir (non-recursive: files only)
+            self.observer.schedule(self, path=path, recursive=False)
+            logger.info(f"Now watching new directory: {path}")
+        else:
+            # file event
+            if not should_skip(path) and path.endswith(".parquet"):
+                logger.info(f"Detected file event for: {path}")
+                index_file(path)
+
+    def on_created(self, event):
+        self.process(event.src_path, is_dir=event.is_directory or os.path.isdir(event.src_path))
+
+    # def on_modified(self, event):
+    #     self.process(event.src_path, is_dir=event.is_directory)
+
+    # def on_moved(self, event):
+    #     # handle both file- and dir-moves
+    #     self.process(event.dest_path, is_dir=os.path.isdir(event.dest_path))
+
+
 if __name__ == "__main__":
-    # Process existing files recursively
-    for root, _, files in os.walk(PARQUET_DIR):
+    observer = Observer()
+    handler  = ParquetHandler(observer)
+
+    # 1) initial recursive walk to handle existing files & dirs
+    for root, dirs, files in os.walk(PARQUET_DIR):
+        # skip control dirs
         if PROCESSED in root or FAILED in root:
             continue
-        for file in files:
-            if file.endswith(".parquet"):
-                index_file(os.path.join(root, file))
 
-    observer = Observer()
-    observer.schedule(ParquetHandler(), path=PARQUET_DIR, recursive=True)
+        # watch any existing station dirs
+        for d in dirs:
+            dirpath = os.path.join(root, d)
+            observer.schedule(handler, path=dirpath, recursive=False)
+            logger.info(f"Watching existing directory: {dirpath}")
+
+        # process any existing parquet files
+        for f in files:
+            if f.endswith(".parquet"):
+                index_file(os.path.join(root, f))
+
+    # 2) watch root for new station dirs, plus top-level file events
+    observer.schedule(handler, path=PARQUET_DIR, recursive=False)
     observer.start()
-    logger.info(f"Watching {PARQUET_DIR} (and subdirectories) for new Parquet files…")
+    logger.info(f"Watching {PARQUET_DIR} (and new subdirectories) for Parquet files…")
+
     try:
         while True:
             time.sleep(1)
