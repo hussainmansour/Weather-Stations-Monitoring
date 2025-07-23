@@ -98,9 +98,6 @@ def index_file(path):
         df = flatten_spark_df(df)
         pdf = df.toPandas()
 
-        if "dropped" not in pdf.columns:
-            pdf["dropped"] = False
-
         logger.info(f"Columns after flatten: {list(pdf.columns)}")
         logger.info(f"Sample row: {pdf.iloc[0].to_dict()}")
 
@@ -142,13 +139,6 @@ class ParquetHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         self.process(event.src_path, is_dir=event.is_directory or os.path.isdir(event.src_path))
-
-    # def on_modified(self, event):
-    #     self.process(event.src_path, is_dir=event.is_directory)
-
-    # def on_moved(self, event):
-    #     # handle both file- and dir-moves
-    #     self.process(event.dest_path, is_dir=os.path.isdir(event.dest_path))
 
 
 if __name__ == "__main__":
