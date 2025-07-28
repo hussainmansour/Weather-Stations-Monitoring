@@ -30,7 +30,7 @@ A scalable, fault-tolerant weather monitoring system that ingests real-time data
 We designed and implemented a scalable, fault-tolerant weather monitoring system that ingests real-time data from 10 simulated stations into Apache Kafka, processes streams for high-humidity events, archives data to Parquet files, maintains a BitCask-based key-value store for low-latency access, and indexes historical data in Elasticsearch for visualization in Kibana.
 
 ## System Architecture
-![System Architecture Diagram](images/architecture.png "Architecture Overview")
+![System Architecture Diagram](architecture.png "Architecture Overview")
 
 
 1. **Data Acquisition**: Java-based producers emit Avro messages every second to the `weather_readings` Kafka topic.
